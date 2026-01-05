@@ -264,6 +264,36 @@ test "singleton class isolation" do
 	RUBY
 end
 
+test "shorthand string interpolation" do
+	processed = StrictIvars::Processor.call(<<~'RUBY')
+		def foo
+			"hello #@name"
+		end
+	RUBY
+
+	assert_equal_ruby processed, <<~RUBY
+		def foo
+			"hello #\{#{guarded(:@name)}}"
+		end
+	RUBY
+end
+
+test "in context shorthand string interpolation" do
+	processed = StrictIvars::Processor.call(<<~'RUBY')
+		def foo
+			@name ||= "world"
+			"hello \#@name"
+		end
+	RUBY
+
+	assert_equal_ruby processed, <<~'RUBY'
+		def foo
+			@name ||= "world"
+			"hello \#@name"
+		end
+	RUBY
+end
+
 def guarded(name)
 	"(defined?(#{name.name}) ? #{name.name} : (::Kernel.raise(::StrictIvars::NameError.new(self, :#{name.name}))))"
 end

@@ -23,3 +23,11 @@ test "eval with implicit path" do
 		RUBY
 	end
 end
+
+test "eval with shorthand string interpolation" do
+	assert_raises StrictIvars::NameError do
+		eval <<~'RUBY', binding, __FILE__, __LINE__ + 1
+			"hello #@name"
+		RUBY
+	end
+end

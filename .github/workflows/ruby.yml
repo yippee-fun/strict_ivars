@@ -27,8 +27,9 @@ jobs:
           bundler-cache: false
 
       - name: Install dependencies
-        run: |
-          bundle install --jobs 4 --without development
+        run: bundle install --jobs 4
+        env:
+          BUNDLER_WITHOUT: development
 
       - name: Quickdraw Tests
         run: bundle exec qt -t 1

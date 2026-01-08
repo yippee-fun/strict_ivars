@@ -54,6 +54,20 @@ class StrictIvars::Processor < StrictIvars::BaseProcessor
 		super
 	end
 
+	#: (Prism::EmbeddedVariableNode) -> void
+	def visit_embedded_variable_node(node)
+		variable = node.variable
+
+		return super unless Prism::InstanceVariableReadNode === variable
+		return super if @context.include?(variable.name)
+
+		location = variable.location
+		annotations = @annotations
+		annotations.push([location.start_character_offset, "{"])
+		super
+		annotations.push([location.end_character_offset, "}"])
+	end
+
 	#: (Prism::InstanceVariableReadNode) -> void
 	def visit_instance_variable_read_node(node)
 		name = node.name

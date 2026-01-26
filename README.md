@@ -1,8 +1,8 @@
  # Strict Ivars
 
-If you reference an undefined method, constant or local varaible, Ruby will helpfully raise an error. But reference an undefined _instance_ variable and Ruby just returns `nil`. This can lead to all kinds of bugs — many of which can lay dormant for years before surprising you with an unexpected outage, data breach or data loss event.
+If you reference an undefined method, constant or local variable, Ruby will helpfully raise an error. But reference an undefined _instance_ variable and Ruby just returns `nil`. This can lead to all kinds of bugs — many of which can lay dormant for years before surprising you with an unexpected outage, data breach or data loss event.
 
-Strict Ivars solves this by making Ruby raise a `NameError` any time you read an undefined instance varaible. It’s enabled with two lines of code in your boot process, then it just works in the background and you’ll never have to think about it again. Strict Ivars has no known false-positives or false-negatives.
+Strict Ivars solves this by making Ruby raise a `NameError` any time you read an undefined instance variable. It’s enabled with two lines of code in your boot process, then it just works in the background and you’ll never have to think about it again. Strict Ivars has no known false-positives or false-negatives.
 
 It’s especially good when used with [Literal](https://literal.fun) and [Phlex](https://www.phlex.fun), though it also works with regular Ruby objects and even ERB templates, which are actually pretty common spots for undefined instance variable reads to hide since that’s the main way of passing data to ERB.
 
@@ -33,7 +33,7 @@ You can pass an array of globs to `StrictIvars.init` as `include:` and `exclude:
 StrictIvars.init(include: ["#{Dir.pwd}/**/*"], exclude: ["#{Dir.pwd}/vendor/**/*"])
 ```
 
-This example include everything in the current directory apart from the `./vendor` folder (which is where GitHub Actions installs gems).
+This example includes everything in the current directory apart from the `./vendor` folder (which is where GitHub Actions installs gems).
 
 If you’re setting this up in Rails, your `boot.rb` file should look something like this.
 
@@ -52,7 +52,7 @@ If you’re using Bootsnap, you should clear your bootsnap cache by deleting the
 
 ## How does it work?
 
-When Strict Ivars detects that you are loading code from paths its configured to handle, it quickly looks for instance variable reads and guards them with a `defined?` check.
+When Strict Ivars detects that you are loading code from paths it's configured to handle, it quickly looks for instance variable reads and guards them with a `defined?` check.
 
 For example, it will replace this:
 
@@ -107,7 +107,7 @@ def description
 end
 ```
 
-This example is relying on Ruby’s behaviour of returning `nil` for undefiend instance variables, which is completely unnecessary. Instead of using `present?`, we could use `defined?` here.
+This example is relying on Ruby’s behaviour of returning `nil` for undefined instance variables, which is completely unnecessary. Instead of using `present?`, we could use `defined?` here.
 
 ```ruby
 def description
@@ -124,7 +124,7 @@ def description
 end
 ```
 
-#### Rendering instance variables that are only set somtimes
+#### Rendering instance variables that are only set sometimes
 
 It’s common to render an instance variable in an ERB view that you only set on some controllers.
 
@@ -132,7 +132,7 @@ It’s common to render an instance variable in an ERB view that you only set on
 <div data-favourites="<%= @user_favourites %>"></div>
 ```
 
-The best solution to this to always set it on all controllers, but set it to `nil` in the cases where you don’t have anything to render. This will prevent you from making a typo in your views.
+The best solution to this is to always set it on all controllers, but set it to `nil` in the cases where you don’t have anything to render. This will prevent you from making a typo in your views.
 
 Alternatively, you could update the view to be explicit about the fact this ivar may not be set.
 
@@ -158,7 +158,7 @@ Using Strict Ivars will impact startup performance since it needs to process eac
 
 In my benchmarks on Ruby 3.4 with YJIT, it’s difficult to tell if there is any performance difference with or without the `defined?` guards at runtime. Sometimes it’s about 1% faster with the guards than without. Sometimes the other way around.
 
-On my laptop, a method that returns an instance varible takes about 15ns and a method that checks if an instance varible is defined and then returns it takes about 15ns. All this is to say, I don’t think there will be any measurable runtime performance impact, at least not in Ruby 3.4.
+On my laptop, a method that returns an instance variable takes about 15ns and a method that checks if an instance variable is defined and then returns it takes about 15ns. All this is to say, I don’t think there will be any measurable runtime performance impact, at least not in Ruby 3.4.
 
 #### Dynamic evals
 
@@ -170,6 +170,6 @@ Strict Ivars has 100% line and branch coverage and there are no known false-posi
 
 ## Uninstall
 
-Becuase Strict Ivars only ever makes your code safer, you can always back out without anything breaking.
+Because Strict Ivars only ever makes your code safer, you can always back out without anything breaking.
 
 To uninstall Strict Ivars, first remove the require and initialization code from wherever you added it and then remove the gem from your `Gemfile`. If you are using Bootsnap, there’s a good chance it cached some pre-processed code with the instance variable read guards in it. To clear this, you’ll need to delete your bootsnap cache, which should be in `tmp/cache/bootsnap`.
